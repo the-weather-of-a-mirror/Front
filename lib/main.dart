@@ -3,15 +3,15 @@ import 'dart:ffi';
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(WhetherApp());
 }
 
-class MyApp extends StatefulWidget {
+class WhetherApp extends StatefulWidget {
   @override
-  _MyApp createState() => _MyApp();
+  _WhetherApp createState() => _WhetherApp();
 }
 
-class _MyApp extends State<MyApp> {
+class _WhetherApp extends State<WhetherApp> {
 
   int _currentIndex = 0;
 
@@ -28,8 +28,85 @@ Widget build(BuildContext context){
     home: Scaffold(
       appBar: AppBar(
         title: Text('거울의 날씨'),
-      ),body: _screens[_currentIndex],
-      bottomNavigationBar: BottomNavigationBar(currentIndex: _currentIndex,
+        centerTitle: true,
+        leading: Builder(
+          builder: (context) {
+            return IconButton(
+               icon: Icon(Icons.menu),
+              onPressed: () {
+              Scaffold.of(context).openDrawer();
+            },);
+          }, 
+          ), //메뉴 버튼
+          actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            onPressed: (){},
+          ), // 검색 버튼
+          ]
+      ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: const [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                  color: Colors.purpleAccent,
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(40.0),
+                      bottomRight: Radius.circular(40.0))),
+              child: Text('메뉴'),
+              
+            ),
+           ListTile(
+              leading: Icon(
+                Icons.home,
+                color: Colors.grey,
+              ),
+              title: Text('마이페이지'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.home,
+                color: Colors.grey,
+              ),
+              title: Text('재난문자'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.home,
+                color: Colors.grey,
+              ),
+              title: Text('메뉴1'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.home,
+                color: Colors.grey,
+              ),
+              title: Text('메뉴2'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.home,
+                color: Colors.grey,
+              ),
+              title: Text('메뉴3'),
+            ),
+            ListTile(
+              leading: Icon(
+                Icons.home,
+                color: Colors.grey,
+              ),
+              title: Text('메뉴4'),
+            ),
+          ],
+        )
+      ),
+      
+      body: pageView,
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
       unselectedItemColor: Colors.grey,
       selectedItemColor: Colors.black,
       type: BottomNavigationBarType.fixed,
@@ -38,6 +115,7 @@ Widget build(BuildContext context){
           _currentIndex = index;
         });
       },
+      
        items: const [
 
     BottomNavigationBarItem(
@@ -66,17 +144,50 @@ Widget build(BuildContext context){
 class HomeScreen extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.greenAccent,
-      body: Center(
-        child: Text('메인 화면',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 14,
-          ),
-        ),
-      ),
-    );
+      body:  
+      
+       Container(
+           color: Colors.yellow,
+           width: 1000,
+           child: Column(
+              children: [
+                Container(
+                  color: Colors.blue,
+                  width: 1000,
+                  child: 
+                Container(
+          
+              margin: EdgeInsets.only(top: 190,bottom: 190),
+         
+            child: const Text('2024-10-09\n화성시 봉담읍\n날씨 맑음, 미세먼지 좋음',
+           
+             textAlign: TextAlign.center),
+            ),
+                ),
+            Container(
+              color : Colors.green,
+              width: 10000,
+              height: 189.6,
+              child:   
+            Container(            
+              child: Text('10월 재난정보\n1~10월 가뭄 예보\n10~20일 태풍 예보\n20일~30일 장마 예보',
+               textAlign: TextAlign.center),
+                margin: EdgeInsets.only(top: 50),
+              height:80,
+                        
+              ),
+            ),
+              ],
+            ),
+            
+           ),
+           
+      
+      
+      
+    );    
   }
 }
 
@@ -130,3 +241,17 @@ class WhatScreen extends StatelessWidget{
     );
   }
 }
+
+final controller = PageController(
+initialPage: 1,
+);
+
+final pageView = PageView(
+  controller: controller,
+  children: [
+    HomeScreen(),
+    MapScreen(),
+    WarningScreen(),
+    WhatScreen(),
+  ],
+);
