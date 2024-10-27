@@ -1,6 +1,13 @@
 import 'dart:ffi';
-
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:whether/WarningScreen/SaveTool.dart';
+import 'package:whether/WarningScreen/ShelterInfo.dart';
+import 'WhatScreen.dart';
+import 'WarningScreen/WarningScreen.dart';
+import 'MapScreen.dart';
+import 'HomeScreen.dart';
+
 
 void main() {
   runApp(WhetherApp());
@@ -19,13 +26,16 @@ class _WhetherApp extends State<WhetherApp> {
     HomeScreen(),
     MapScreen(),
     WarningScreen(),
-    WhatScreen()
+    WhatScreen(),
+    ShelterInfo()
   ];
 
 @override
 Widget build(BuildContext context){
   return MaterialApp(
-    home: Scaffold(
+    home: DefaultTabController(
+      length: 4,
+      child: Scaffold(
       appBar: AppBar(
         title: Text('거울의 날씨'),
         centerTitle: true,
@@ -104,154 +114,69 @@ Widget build(BuildContext context){
         )
       ),
       
-      body: pageView,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-      unselectedItemColor: Colors.grey,
-      selectedItemColor: Colors.black,
-      type: BottomNavigationBarType.fixed,
-      onTap: (index){
-        setState(() {
-          _currentIndex = index;
-        });
-      },
-      
-       items: const [
-
-    BottomNavigationBarItem(
-      icon: Icon(Icons.home),
-      label: '메인',
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.search),
-      label: '지도'
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.comment),
-      label: '재난대처'
-    ),
-    BottomNavigationBarItem(
-      icon: Icon(Icons.star),
-      label: '여기다 뭐하지'
-          ),
-        ],
-       )
-      ),
-    );
-  }
-}
-
-class HomeScreen extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.greenAccent,
-      body:  
-      
-       Container(
-           color: Colors.yellow,
-           width: 1000,
-           child: Column(
-              children: [
-                Container(
-                  color: Colors.blue,
-                  width: 1000,
-                  child: 
-                Container(
-          
-              margin: EdgeInsets.only(top: 190,bottom: 190),
-         
-            child: const Text('2024-10-09\n화성시 봉담읍\n날씨 맑음, 미세먼지 좋음',
-           
-             textAlign: TextAlign.center),
+      body: TabBarView(children:[
+        HomeScreen(),
+        MapScreen(),
+        WarningScreen(),
+        WhatScreen(),
+        ]
+        ),
+        extendBodyBehindAppBar: true,
+        
+      bottomNavigationBar: Container(
+        color: Colors.white,
+        child: Container(
+          height: 70,
+          padding: EdgeInsets.only(bottom: 10,top:5),
+          child: const TabBar(
+            indicatorSize: TabBarIndicatorSize.label,
+            indicatorColor: Colors.black,
+            indicatorWeight: 2,
+            labelColor: Colors.black,
+            unselectedLabelColor: Colors.grey,
+            labelStyle: TextStyle(
+              fontSize: 13,
             ),
-                ),
-            Container(
-              color : Colors.green,
-              width: 10000,
-              height: 189.6,
-              child:   
-            Container(            
-              child: Text('10월 재난정보\n1~10월 가뭄 예보\n10~20일 태풍 예보\n20일~30일 장마 예보',
-               textAlign: TextAlign.center),
-                margin: EdgeInsets.only(top: 50),
-              height:80,
-                        
-              ),
-            ),
-              ],
-            ),
+            tabs: [
+            Tab(
+              icon: Icon(Icons.home),
             
-           ),
-           
-      
-      
-      
-    );    
-  }
-}
-
-class MapScreen extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.lightGreen,
-      body: Center(
-        child: Text('지도',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 14,
-          ),
-        ),
+            text: ("메인")
+            ),
+            Tab(
+              icon: Icon(Icons.search),
+            
+            text: ("지도")
+            ),
+            Tab(
+              icon: Icon(Icons.comment),
+            
+            text: ("재난대처")
+            ),
+            Tab(
+              icon: Icon(Icons.star),
+            
+            text: ("기타")
+            ),
+          ]),
+        )
       ),
+      ),
+    )
     );
   }
 }
 
-class WarningScreen extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.blueGrey,
-      body: Center(
-        child: Text('재난 대처 정보',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 14,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
-class WhatScreen extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.purple,
-      body: Center(
-        child: Text('여기다 뭐하지',
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 14,
-          ),
-        ),
-      ),
-    );
-  }
-}
+
+
+
+
 
 final controller = PageController(
 initialPage: 1,
 );
 
 final pageView = PageView(
-  controller: controller,
-  children: [
-    HomeScreen(),
-    MapScreen(),
-    WarningScreen(),
-    WhatScreen(),
-  ],
+  
 );
