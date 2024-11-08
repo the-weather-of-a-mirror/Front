@@ -3,11 +3,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:whether/WarningScreen/SaveTool.dart';
 import 'package:whether/WarningScreen/ShelterInfo.dart';
+import 'package:whether/login/LoginScreen.dart';
+import 'package:whether/login/MyPageScreen.dart';
 import 'WhatScreen.dart';
 import 'WarningScreen/WarningScreen.dart';
 import 'MapScreen.dart';
 import 'HomeScreen.dart';
-
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(WhetherApp());
@@ -18,24 +20,39 @@ class WhetherApp extends StatefulWidget {
   _WhetherApp createState() => _WhetherApp();
 }
 
+
+
 class _WhetherApp extends State<WhetherApp> {
 
   int _currentIndex = 0;
 
-  final List<Widget> _screens = [
-    HomeScreen(),
-    MapScreen(),
-    WarningScreen(),
-    WhatScreen(),
-    ShelterInfo()
-  ];
+List<Widget> viewList=[HomeScreen(),  MapScreen(),  WarningScreen(), LoginScreen()];
 
+void checkToken() async{
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    token = null;
+ if (token != null) {
+      viewList  = [HomeScreen(),  MapScreen(),  WarningScreen(), MyPageScreen()];
+    }
+    if (token == null){
+       viewList  = [HomeScreen(),  MapScreen(),  WarningScreen(), LoginScreen()];
+    }
+
+}
+
+   
 @override
 Widget build(BuildContext context){
+
+  
   return MaterialApp(
+    
     home: DefaultTabController(
       length: 4,
       child: Scaffold(
+              resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('거울의 날씨'),
         centerTitle: true,
@@ -114,12 +131,7 @@ Widget build(BuildContext context){
         )
       ),
       
-      body: TabBarView(children:[
-        HomeScreen(),
-        MapScreen(),
-        WarningScreen(),
-        WhatScreen(),
-        ]
+      body: TabBarView(children: [HomeScreen(),  MapScreen(),  WarningScreen(), MyPageScreen()]
         ),
         extendBodyBehindAppBar: true,
         
@@ -156,7 +168,7 @@ Widget build(BuildContext context){
             Tab(
               icon: Icon(Icons.star),
             
-            text: ("기타")
+            text: ("로그인")
             ),
           ]),
         )
@@ -166,9 +178,6 @@ Widget build(BuildContext context){
     );
   }
 }
-
-
-
 
 
 

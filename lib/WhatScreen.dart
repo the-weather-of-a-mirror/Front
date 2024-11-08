@@ -10,7 +10,7 @@ class WhatScreen extends StatelessWidget{
     return const Scaffold(
       backgroundColor: Colors.purple,
       body: Center(
-        child: Text('여기다 뭐하지',
+        child: Text('기타',
         style: TextStyle(
           color: Colors.black,
           fontSize: 14,
