@@ -5,14 +5,15 @@ import 'package:whether/WarningScreen/SaveTool.dart';
 import 'package:whether/WarningScreen/ShelterInfo.dart';
 import 'package:whether/login/LoginScreen.dart';
 import 'package:whether/login/MyPageScreen.dart';
+import 'QRScanner.dart';
 import 'WhatScreen.dart';
 import 'WarningScreen/WarningScreen.dart';
 import 'MapScreen.dart';
 import 'HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '';
 void main() {
-  runApp(WhetherApp());
+  runApp(MaterialApp(home:WhetherApp()));
 }
 
 class WhetherApp extends StatefulWidget {
@@ -75,8 +76,8 @@ Widget build(BuildContext context){
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
-          children: const [
-            DrawerHeader(
+          children: [
+            const DrawerHeader(
               decoration: BoxDecoration(
                   color: Colors.purpleAccent,
                   borderRadius: BorderRadius.only(
@@ -85,14 +86,14 @@ Widget build(BuildContext context){
               child: Text('메뉴'),
               
             ),
-           ListTile(
+           const ListTile(
               leading: Icon(
                 Icons.home,
                 color: Colors.grey,
               ),
               title: Text('마이페이지'),
             ),
-            ListTile(
+            const ListTile(
               leading: Icon(
                 Icons.home,
                 color: Colors.grey,
@@ -100,27 +101,34 @@ Widget build(BuildContext context){
               title: Text('재난문자'),
             ),
             ListTile(
-              leading: Icon(
+              leading: const Icon(
                 Icons.home,
                 color: Colors.grey,
               ),
-              title: Text('메뉴1'),
+              title: const Text('QrScanner'),
+              onTap: (){
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder:(context)=> Qrscanner()
+                    )
+                );
+              },
             ),
-            ListTile(
+            const ListTile(
               leading: Icon(
                 Icons.home,
                 color: Colors.grey,
               ),
               title: Text('메뉴2'),
             ),
-            ListTile(
+            const ListTile(
               leading: Icon(
                 Icons.home,
                 color: Colors.grey,
               ),
               title: Text('메뉴3'),
             ),
-            ListTile(
+            const ListTile(
               leading: Icon(
                 Icons.home,
                 color: Colors.grey,
