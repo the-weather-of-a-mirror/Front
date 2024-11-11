@@ -12,9 +12,12 @@ import 'MapScreen.dart';
 import 'HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '';
+
 void main() {
   runApp(MaterialApp(home:WhetherApp()));
 }
+
+List<Widget> viewList=[HomeScreen(),  MapScreen(),  WarningScreen(), LoginScreen()];
 
 class WhetherApp extends StatefulWidget {
   @override
@@ -27,26 +30,31 @@ class _WhetherApp extends State<WhetherApp> {
 
   int _currentIndex = 0;
 
-List<Widget> viewList=[HomeScreen(),  MapScreen(),  WarningScreen(), LoginScreen()];
+
 
 void checkToken() async{
   SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
+    print(token);
 
-    token = null;
- if (token != null) {
+ if (token != "") {
       viewList  = [HomeScreen(),  MapScreen(),  WarningScreen(), MyPageScreen()];
     }
-    if (token == null){
-       viewList  = [HomeScreen(),  MapScreen(),  WarningScreen(), LoginScreen()];
+    if (token == "" || token == null){
+      viewList  = [HomeScreen(),  MapScreen(),  WarningScreen(), LoginScreen()];
     }
 
+  setState(() {});
+
 }
+
 
    
 @override
 Widget build(BuildContext context){
 
+
+checkToken();
   
   return MaterialApp(
     
@@ -139,7 +147,7 @@ Widget build(BuildContext context){
         )
       ),
       
-      body: TabBarView(children: [HomeScreen(),  MapScreen(),  WarningScreen(), MyPageScreen()]
+      body: TabBarView(children: viewList
         ),
         extendBodyBehindAppBar: true,
         

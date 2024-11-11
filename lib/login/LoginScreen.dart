@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:whether/login/MyPageScreen.dart';
+import '../main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'SignUpScreen.dart';
 import 'dart:convert';
@@ -48,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen>{
               keyboardType: TextInputType.emailAddress,
               onChanged: (text) {
                 setState(() {
-                  id = text; // 이메일 변수에 저장
+                  id = text; 
                 });
               },
             ),
@@ -69,6 +71,36 @@ class _LoginScreenState extends State<LoginScreen>{
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
+
+                if(id==""){showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          
+          content: Text("ID를 입력해주세요."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, '확인'),
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+                  );
+                  return;}
+                  if(password==""){showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          
+          content: Text("비밀번호를 입력해주세요."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, '확인'),
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+                  );
+                  return;}
+
                 var headers = {'Content-Type': 'application/json'};
                 var request = http.Request('POST',
                     Uri.parse('http://223.195.109.34:8080/mirror/member/login'));
@@ -87,11 +119,31 @@ class _LoginScreenState extends State<LoginScreen>{
                   saveToken(jsonData['data']['accessToken']);
                   
                 } else {
-                  print(response.reasonPhrase);
+                  print(jsonData['data']['']);
+                  saveToken("");
+                  if(response.statusCode == 400){showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          
+          content: Text(jsonData['data']['']),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.pop(context, '확인'),
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+                  );
+                  return;}
                 }
+
+    
 
                 print('로그인 버튼 클릭됨');
                 kk();
+                setState(() {
+                    MyPageScreen();
+                });
               },
               child: Text('로그인'),
             ),
@@ -110,3 +162,4 @@ class _LoginScreenState extends State<LoginScreen>{
     );
   }
 }
+

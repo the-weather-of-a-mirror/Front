@@ -13,6 +13,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
   String email = '';
   String city = '';
   bool isLoading = true;
+  String? token = '';
 
   @override
   void initState() {
@@ -21,16 +22,14 @@ class _MyPageScreenState extends State<MyPageScreen> {
   }
 
   // SharedPreferences에서 토큰을 읽어와서 서버로 GET 요청 보내기
-  _loadUserData() async {
+  Future<void> _loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token'); // 토큰을 가져옵니다.
+    token = prefs.getString('auth_token'); // 토큰을 가져옵니다.
 
-    if (token != null) {
-      // 토큰이 있을 경우 GET 요청을 보냅니다.
+    if (token != null && token!.isNotEmpty) {
       var headers = {'Authorization': 'Bearer $token'};
       var request = http.Request(
           'GET', Uri.parse('http://223.195.109.34:8080/mirror/member/info'));
-      request.body = '''''';
       request.headers.addAll(headers);
 
       http.StreamedResponse response = await request.send();
@@ -42,21 +41,22 @@ class _MyPageScreenState extends State<MyPageScreen> {
           name = data['data']['name'];
           email = data['data']['email'];
           city = data['data']['area'];
-          isLoading = false; // 데이터 로드가 완료되면 isLoading을 false로 설정
-        });
-      } else {
-        // 오류 처리
-        setState(() {
           isLoading = false;
         });
+      } else {
+        setState(() => isLoading = false);
         print('Error: ${response.statusCode}');
       }
     } else {
-      setState(() {
-        isLoading = false;
-      });
+      setState(() => isLoading = false);
       print('No token found');
     }
+  }
+
+  // 토큰을 삭제하는 함수
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('auth_token'); // 로그아웃 후 이전 화면으로 돌아가기
   }
 
   @override
@@ -64,19 +64,40 @@ class _MyPageScreenState extends State<MyPageScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('마이페이지'),
+        centerTitle: true,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator()) // 로딩 중에는 로딩 인디케이터 표시
+          ? Center(child: CircularProgressIndicator())
           : Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('이름: $name', style: TextStyle(fontSize: 20)),
-                  SizedBox(height: 10),
-                  Text('이메일: $email', style: TextStyle(fontSize: 20)),
-                  SizedBox(height: 10),
-                  Text('지역: $city', style: TextStyle(fontSize: 20)),
+                  Text('이름', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  SizedBox(height: 5),
+                  Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 20),
+
+                  Text('이메일', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  SizedBox(height: 5),
+                  Text(email, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 20),
+
+                  Text('지역', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  SizedBox(height: 5),
+                  Text(city, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  SizedBox(height: 40),
+
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: _logout,
+                      style: ElevatedButton.styleFrom(
+                        
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      ),
+                      child: Text('로그아웃', style: TextStyle(fontSize: 18)),
+                    ),
+                  ),
                 ],
               ),
             ),
