@@ -18,16 +18,16 @@ void saveToken(String token) async {
 
 void kk() async {
   SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token');
-    print(token);
+  String? token = prefs.getString('auth_token');
+  print(token);
 }
 
-class _LoginScreenState extends State<LoginScreen>{
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  var id='';
-  var password='';
+  var id = '';
+  var password = '';
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class _LoginScreenState extends State<LoginScreen>{
               keyboardType: TextInputType.emailAddress,
               onChanged: (text) {
                 setState(() {
-                  id = text; 
+                  id = text;
                 });
               },
             ),
@@ -71,78 +71,78 @@ class _LoginScreenState extends State<LoginScreen>{
             SizedBox(height: 16),
             ElevatedButton(
               onPressed: () async {
-
-                if(id==""){showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          
-          content: Text("ID를 입력해주세요."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, '확인'),
-              child: const Text('확인'),
-            ),
-          ],
-        ),
+                if (id == "") {
+                  showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      content: Text("ID를 입력해주세요."),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, '확인'),
+                          child: const Text('확인'),
+                        ),
+                      ],
+                    ),
                   );
-                  return;}
-                  if(password==""){showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          
-          content: Text("비밀번호를 입력해주세요."),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, '확인'),
-              child: const Text('확인'),
-            ),
-          ],
-        ),
+                  return;
+                }
+                if (password == "") {
+                  showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      content: Text("비밀번호를 입력해주세요."),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, '확인'),
+                          child: const Text('확인'),
+                        ),
+                      ],
+                    ),
                   );
-                  return;}
+                  return;
+                }
 
                 var headers = {'Content-Type': 'application/json'};
-                var request = http.Request('POST',
-                    Uri.parse('http://223.195.109.34:8080/mirror/member/login'));
-                request.body = json
-                    .encode({"loginId": id, "password": password});
+                var request = http.Request(
+                    'POST',
+                    Uri.parse(
+                        'http://223.195.109.34:8080/mirror/member/login'));
+                request.body =
+                    json.encode({"loginId": id, "password": password});
                 request.headers.addAll(headers);
 
                 http.StreamedResponse response = await request.send();
-                
+
                 var jsonS = await response.stream.bytesToString();
                 var jsonData = json.decode(jsonS);
-
 
                 if (response.statusCode == 200) {
                   print(jsonData);
                   saveToken(jsonData['data']['accessToken']);
-                  
                 } else {
                   print(jsonData['data']['']);
                   saveToken("");
-                  if(response.statusCode == 400){showDialog<String>(
-        context: context,
-        builder: (BuildContext context) => AlertDialog(
-          
-          content: Text(jsonData['data']['']),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.pop(context, '확인'),
-              child: const Text('확인'),
-            ),
-          ],
-        ),
-                  );
-                  return;}
+                  if (response.statusCode == 400) {
+                    showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => AlertDialog(
+                        content: Text(jsonData['data']['']),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, '확인'),
+                            child: const Text('확인'),
+                          ),
+                        ],
+                      ),
+                    );
+                    return;
+                  }
                 }
-
-    
 
                 print('로그인 버튼 클릭됨');
                 kk();
                 setState(() {
-                    MyPageScreen();
+                  MyPageScreen();
                 });
               },
               child: Text('로그인'),
@@ -162,4 +162,3 @@ class _LoginScreenState extends State<LoginScreen>{
     );
   }
 }
-

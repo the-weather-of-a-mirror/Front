@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:whether/QRScanner.dart';
 
 class MyPageScreen extends StatefulWidget {
   @override
@@ -73,27 +74,33 @@ class _MyPageScreenState extends State<MyPageScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('이름', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  Text('이름',
+                      style: TextStyle(fontSize: 18, color: Colors.grey)),
                   SizedBox(height: 5),
-                  Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text(name,
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   SizedBox(height: 20),
-
-                  Text('이메일', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  Text('이메일',
+                      style: TextStyle(fontSize: 18, color: Colors.grey)),
                   SizedBox(height: 5),
-                  Text(email, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text(email,
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   SizedBox(height: 20),
-
-                  Text('지역', style: TextStyle(fontSize: 18, color: Colors.grey)),
+                  Text('지역',
+                      style: TextStyle(fontSize: 18, color: Colors.grey)),
                   SizedBox(height: 5),
-                  Text(city, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                  Text(city,
+                      style:
+                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                   SizedBox(height: 40),
-
                   Center(
                     child: ElevatedButton(
                       onPressed: _logout,
                       style: ElevatedButton.styleFrom(
-                        
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                       ),
                       child: Text('로그아웃', style: TextStyle(fontSize: 18)),
                     ),
