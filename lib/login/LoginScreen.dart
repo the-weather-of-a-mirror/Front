@@ -120,13 +120,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   print(jsonData);
                   saveToken(jsonData['data']['accessToken']);
                 } else {
-                  print(jsonData['data']['']);
+                  print(jsonData['data']['ERROR']);
                   saveToken("");
                   if (response.statusCode == 400) {
                     showDialog<String>(
                       context: context,
                       builder: (BuildContext context) => AlertDialog(
-                        content: Text(jsonData['data']['']),
+                        content: Text(jsonData['data']['ERROR']),
                         actions: <Widget>[
                           TextButton(
                             onPressed: () => Navigator.pop(context, '확인'),

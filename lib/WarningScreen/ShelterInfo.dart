@@ -1,18 +1,61 @@
-import 'dart:ffi';
+import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import '../main.dart';
+import 'package:http/http.dart' as http;
 
+class ShelterInfo extends StatefulWidget {
+  @override
+  _ShelterInfoState createState() => _ShelterInfoState();
+}
 
-class ShelterInfo extends StatelessWidget {
-  final List<Map<String, dynamic>> shelters = [
-    {'name': '화성시 봉담읍 oo대피소', 'capacity': 100, 'current': 69},
-    {'name': '화성시 봉담읍 □□대피소', 'capacity': 100, 'current': 74},
-    {'name': '화성시 봉담읍 aa대피소', 'capacity': 200, 'current': 169},
-    {'name': '화성시 봉담읍 bb대피소', 'capacity': 150, 'current': 150},
-    {'name': '화성시 봉담읍 cc대피소', 'capacity': 200, 'current': 174},
-    // 필요한 만큼 추가
-  ];
+class _ShelterInfoState extends State<ShelterInfo> {
+  List<Map<String, dynamic>> shelters = []; // 대피소 데이터 리스트
+  bool isLoading = true; // 로딩 상태 플래그
+
+  @override
+  void initState() {
+    super.initState();
+    getShelter(); // 초기 데이터 로드
+  }
+
+  Future<void> getShelter() async {
+    try {
+      var headers = {'X-API-Key': 'RTBB737XUH1R7XI0'};
+      var request = http.Request(
+        'GET',
+        Uri.parse('http://223.195.109.34:8080/mirror/weather/shelter'),
+      );
+
+      request.headers.addAll(headers);
+
+      http.StreamedResponse response = await request.send();
+
+      if (response.statusCode == 200) {
+        var jsonS = await response.stream.bytesToString();
+        var jsonData = json.decode(jsonS);
+
+        // JSON 데이터 파싱
+        List<dynamic> body = jsonData['body'];
+        setState(() {
+          shelters = body.map((item) {
+            return {
+              'name': item['REARE_NM'] ?? '알 수 없음',
+              'address': item['RONA_DADDR'] ?? '주소 없음',
+              'type': item['SHLT_SE_NM'] ?? '정보 없음',
+            };
+          }).toList();
+          isLoading = false;
+        });
+      } else {
+        print('Error: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print("에러 발생: $e");
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,29 +63,36 @@ class ShelterInfo extends StatelessWidget {
       appBar: AppBar(
         title: Text('대피소 정보'),
       ),
-      body: ListView.builder(
-      itemCount: shelters.length,
-      itemBuilder: (context, index) {
-        final shelter = shelters[index];
-        return Card(
-          margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  shelter['name'],
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 8),
-                Text('정원 : ${shelter['capacity']}명 현재 : ${shelter['current']}명'),
-              ],
+      body: isLoading
+          ? Center(child: CircularProgressIndicator()) // 로딩 상태 표시
+          : ListView.builder(
+              itemCount: shelters.length,
+              itemBuilder: (context, index) {
+                final shelter = shelters[index];
+                return Card(
+                  margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          shelter['name'],
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        Text('주소: ${shelter['address']}'),
+                        SizedBox(height: 8),
+                        Text('유형: ${shelter['type']}'),
+                        SizedBox(height: 8),
+                        
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
-          ),
-        );
-      },
-      )
     );
   }
 }
