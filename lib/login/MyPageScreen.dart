@@ -58,6 +58,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token'); // 로그아웃 후 이전 화면으로 돌아가기
+    
   }
 
   @override

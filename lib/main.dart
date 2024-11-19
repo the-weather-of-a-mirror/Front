@@ -121,18 +121,12 @@ class _WhetherApp extends State<WhetherApp> {
           children: [
             const DrawerHeader(
               decoration: BoxDecoration(
-                  color: Colors.purpleAccent,
+                  color: Colors.black,
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(40.0),
                       bottomRight: Radius.circular(40.0))),
-              child: Text('메뉴'),
-            ),
-            const ListTile(
-              leading: Icon(
-                Icons.home,
-                color: Colors.grey,
-              ),
-              title: Text('마이페이지'),
+              child: Text('메뉴',
+              style: TextStyle(color:Colors.white),),
             ),
             const ListTile(
               leading: Icon(
@@ -151,30 +145,6 @@ class _WhetherApp extends State<WhetherApp> {
                 checkQR();
               
               },
-            ),
-            ListTile(
-              leading: const Icon(
-                Icons.home,
-                color: Colors.grey,
-              ),
-              title: const Text('메뉴2'),
-              onTap: () {
-                Navigator.pop(context);
-              },
-            ),
-            const ListTile(
-              leading: Icon(
-                Icons.home,
-                color: Colors.grey,
-              ),
-              title: Text('메뉴3'),
-            ),
-            const ListTile(
-              leading: Icon(
-                Icons.home,
-                color: Colors.grey,
-              ),
-              title: Text('메뉴4'),
             ),
           ],
         )),

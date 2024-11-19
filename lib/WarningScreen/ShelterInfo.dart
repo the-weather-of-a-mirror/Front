@@ -86,7 +86,6 @@ class _ShelterInfoState extends State<ShelterInfo> {
                         SizedBox(height: 8),
                         Text('유형: ${shelter['type']}'),
                         SizedBox(height: 8),
-                        
                       ],
                     ),
                   ),
