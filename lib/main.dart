@@ -2,6 +2,7 @@ import 'dart:ffi';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:whether/Message.dart';
 import 'package:whether/WarningScreen/SaveTool.dart';
 import 'package:whether/WarningScreen/ShelterInfo.dart';
 import 'package:whether/login/LoginScreen.dart';
@@ -87,6 +88,40 @@ class _WhetherApp extends State<WhetherApp> {
 
   }
 
+  void checkMsg() async{
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    if (token != null) {
+      Navigator.push(context,
+      MaterialPageRoute(builder: (context) => Message()));
+     
+    }
+    else if (token == "" || token == null) {
+    showDialog<String>(
+                    context: context,
+                    builder: (BuildContext context) => AlertDialog(
+                      content: Text("로그인을 해주세요."),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            
+                          },
+                          child: const Text('확인'),
+                        ),
+                      ],
+                    ),
+                  );
+
+    }
+    print(token);
+    setState(() {
+      
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
     checkToken();
@@ -128,12 +163,15 @@ class _WhetherApp extends State<WhetherApp> {
               child: Text('메뉴',
               style: TextStyle(color:Colors.white),),
             ),
-            const ListTile(
+            ListTile(
               leading: Icon(
                 Icons.home,
                 color: Colors.grey,
               ),
               title: Text('재난문자'),
+              onTap: () {
+                checkMsg();
+              },
             ),
             ListTile(
               leading: const Icon(

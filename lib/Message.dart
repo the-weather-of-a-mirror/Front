@@ -2,30 +2,35 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whether/Key.dart';
 
-class ShelterInfo extends StatefulWidget {
+class Message extends StatefulWidget {
   @override
-  _ShelterInfoState createState() => _ShelterInfoState();
+  _MessageState createState() => _MessageState();
 }
 
-class _ShelterInfoState extends State<ShelterInfo> {
-  List<Map<String, dynamic>> shelters = []; // 대피소 데이터 리스트
+class _MessageState extends State<Message> {
+  List<Map<String, dynamic>> messages = []; // 대피소 데이터 리스트
   bool isLoading = true; // 로딩 상태 플래그
+  String? token = '';
 
   @override
   void initState() {
     super.initState();
-    getShelter(); // 초기 데이터 로드
+    getMessage(); // 초기 데이터 로드
   }
 
-  Future<void> getShelter() async {
+  Future<void> getMessage() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('auth_token'); // 토큰을 가져옵니다.
     try {
-      var headers = {'X-API-Key': ApiKeys.shelterApiKey};
-      var request = http.Request(
-        'GET',
-        Uri.parse('http://223.195.109.34:8080/mirror/weather/shelter'),
-      );
+      var headers = {
+        'Authorization': 'Bearer $token',
+        'X-API-Key': ApiKeys.messageApiKey
+      };
+      var request = http.Request('GET',
+          Uri.parse('http://223.195.109.34:8080/mirror/weather/disasterMsg'));
 
       request.headers.addAll(headers);
 
@@ -36,19 +41,20 @@ class _ShelterInfoState extends State<ShelterInfo> {
         var jsonData = json.decode(jsonS);
 
         // JSON 데이터 파싱
-        List<dynamic> body = jsonData['body'];
+        List<dynamic> body = jsonData['data']['body'];
         setState(() {
-          shelters = body.map((item) {
+          messages = body.map((item) {
             return {
-              'name': item['REARE_NM'] ?? '알 수 없음',
-              'address': item['RONA_DADDR'] ?? '주소 없음',
-              'type': item['SHLT_SE_NM'] ?? '정보 없음',
+              'msg': item['MSG_CN'] ?? '메시지 없음',
+              'region': item['RCPTN_RGN_NM'] ?? '지역 정보 없음',
+              'date': item['CRT_DT'] ?? '날짜 정보 없음',
+              'type': item['EMRG_STEP_NM'] ?? '유형 정보 없음',
             };
           }).toList();
           isLoading = false;
         });
       } else {
-        print('Error: ${response.reasonPhrase}');
+        print(response.reasonPhrase);
       }
     } catch (e) {
       print("에러 발생: $e");
@@ -62,14 +68,14 @@ class _ShelterInfoState extends State<ShelterInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('대피소 정보'),
+        title: Text('재난 문자'),
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator()) // 로딩 상태 표시
           : ListView.builder(
-              itemCount: shelters.length,
+              itemCount: messages.length,
               itemBuilder: (context, index) {
-                final shelter = shelters[index];
+                final message = messages[index];
                 return Card(
                   margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                   child: Padding(
@@ -78,15 +84,16 @@ class _ShelterInfoState extends State<ShelterInfo> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          shelter['name'],
+                          message['msg'],
                           style: TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold),
                         ),
                         SizedBox(height: 8),
-                        Text('주소: ${shelter['address']}'),
+                        Text(message['type']),
                         SizedBox(height: 8),
-                        Text('유형: ${shelter['type']}'),
+                        Text(message['region']),
                         SizedBox(height: 8),
+                        Text(message['date'])
                       ],
                     ),
                   ),
