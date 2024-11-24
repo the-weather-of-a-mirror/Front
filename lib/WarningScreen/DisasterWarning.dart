@@ -300,6 +300,7 @@ TV나 라디오를 통해 기상 상황과 해일 경보를 주의 깊게 청취
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300], 
       appBar: AppBar(
         title: Text('재난 대피시 주의 사항'),
       ),

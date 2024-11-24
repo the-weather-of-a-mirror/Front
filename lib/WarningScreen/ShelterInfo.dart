@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:whether/Key.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ShelterInfo extends StatefulWidget {
   @override
@@ -20,12 +21,16 @@ class _ShelterInfoState extends State<ShelterInfo> {
   }
 
   Future<void> getShelter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+
     try {
-      var headers = {'X-API-Key': ApiKeys.shelterApiKey};
-      var request = http.Request(
-        'GET',
-        Uri.parse('http://223.195.109.34:8080/mirror/weather/shelter'),
-      );
+      var headers = {
+        'Authorization': 'Bearer $token',
+        'X-API-Key': ApiKeys.shelterApiKey};
+        var request = http.Request('GET',
+        Uri.parse('http://223.195.109.34:8080/mirror/weather/shelter'));
 
       request.headers.addAll(headers);
 
@@ -36,7 +41,7 @@ class _ShelterInfoState extends State<ShelterInfo> {
         var jsonData = json.decode(jsonS);
 
         // JSON 데이터 파싱
-        List<dynamic> body = jsonData['body'];
+        List<dynamic> body = jsonData['data']['body'];
         setState(() {
           shelters = body.map((item) {
             return {
@@ -61,6 +66,7 @@ class _ShelterInfoState extends State<ShelterInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300], 
       appBar: AppBar(
         title: Text('대피소 정보'),
       ),

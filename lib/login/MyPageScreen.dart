@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:whether/QRScanner.dart';
 
 class MyPageScreen extends StatefulWidget {
   @override
@@ -51,6 +50,7 @@ class _MyPageScreenState extends State<MyPageScreen> {
     } else {
       setState(() => isLoading = false);
       print('No token found');
+      prefs.remove('auth_token');
     }
   }
 
@@ -58,55 +58,53 @@ class _MyPageScreenState extends State<MyPageScreen> {
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove('auth_token'); // 로그아웃 후 이전 화면으로 돌아가기
-    
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       appBar: AppBar(
-        title: Text('마이페이지'),
+        title: Text('마이페이지', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
         centerTitle: true,
       ),
       body: isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
           : Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('이름',
-                      style: TextStyle(fontSize: 18, color: Colors.grey)),
-                  SizedBox(height: 5),
-                  Text(name,
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 20),
-                  Text('이메일',
-                      style: TextStyle(fontSize: 18, color: Colors.grey)),
-                  SizedBox(height: 5),
-                  Text(email,
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 20),
-                  Text('지역',
-                      style: TextStyle(fontSize: 18, color: Colors.grey)),
-                  SizedBox(height: 5),
-                  Text(city,
-                      style:
-                          TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  SizedBox(height: 40),
-                  Center(
-                    child: ElevatedButton(
+              child: Center( // Center로 전체 Column을 감싸서 중앙 정렬
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center, // 세로로 중앙 정렬
+                  crossAxisAlignment: CrossAxisAlignment.center, // 가로로 중앙 정렬
+                  children: [
+                    Text('이름', style: TextStyle(fontSize: 18, color: Colors.black)),
+                    SizedBox(height: 5),
+                    Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 20),
+                    Text('이메일', style: TextStyle(fontSize: 18, color: Colors.black)),
+                    SizedBox(height: 5),
+                    Text(email, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 20),
+                    Text('지역', style: TextStyle(fontSize: 18, color: Colors.black)),
+                    SizedBox(height: 5),
+                    Text(city, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 40),
+                    ElevatedButton(
                       onPressed: _logout,
                       style: ElevatedButton.styleFrom(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        backgroundColor: Colors.black,
                       ),
-                      child: Text('로그아웃', style: TextStyle(fontSize: 18)),
+                      child: Text(
+                        '로그아웃',
+                        style: TextStyle(fontSize: 18, color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
     );

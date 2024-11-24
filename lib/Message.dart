@@ -67,6 +67,7 @@ class _MessageState extends State<Message> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300], 
       appBar: AppBar(
         title: Text('재난 문자'),
       ),

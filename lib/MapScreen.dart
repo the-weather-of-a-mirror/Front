@@ -1,59 +1,166 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class MapScreen extends StatelessWidget {
+class MapScreen extends StatefulWidget {
+  @override
+  _MapScreenState createState() => _MapScreenState();
+}
+
+class _MapScreenState extends State<MapScreen> {
+  Map<String, dynamic> weatherData = {};
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchWeatherData();
+  }
+
+  Future<void> fetchWeatherData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    final headers = {
+      'Authorization': 'Bearer $token',
+    };
+
+    final url = Uri.parse('http://223.195.109.34:8080/mirror/weather/weatherMapService');
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        weatherData = data['data']['results']['choiceResult']['nationFcast'];
+        isLoading = false;
+      });
+    } else {
+      print('Failed to fetch weather data: ${response.reasonPhrase}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      backgroundColor: Color(0xFF00A2E8),
+      appBar: AppBar(
+        title: Text("날씨 지도",
+        style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.black,
+        centerTitle: true,
+      ),
+      body: Center(
+        child: isLoading
+            ? CircularProgressIndicator()
+            : CustomWeatherMap(
+                weatherData: weatherData,
+                width: 350, // 고정된 너비
+                height: 500, // 고정된 높이
+              ),
+      ),
+    );
+  }
+}
+
+class CustomWeatherMap extends StatelessWidget {
+  final Map<String, dynamic> weatherData;
+  final double width;
+  final double height;
+
+  const CustomWeatherMap({
+    Key? key,
+    required this.weatherData,
+    this.width = 300.0,
+    this.height = 400.0,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final cities = {
+      '춘천': Offset(0.53, 0.18),
+      '서울': Offset(0.38, 0.25),
+      '강릉': Offset(0.63, 0.28),
+      '청주': Offset(0.55, 0.37),
+      '수원': Offset(0.38, 0.38),
+      '대전': Offset(0.5, 0.48),
+      '안동': Offset(0.7, 0.45),
+      '전주': Offset(0.35, 0.53),
+      '대구': Offset(0.6, 0.55),
+      '광주': Offset(0.33, 0.65),
+      '부산': Offset(0.7, 0.68),
+      '울산': Offset(0.79, 0.57),
+      '목포': Offset(0.2, 0.75),
+      '제주': Offset(0.13, 0.87),
+      '여수': Offset(0.45, 0.75),
+      '울릉/독도': Offset(0.8, 0.33),
+    };
+
+    return SizedBox(
+      width: width,
+      height: height,
+      child: Stack(
         children: [
-          // 지도 이미지 배경
+          // 지도 배경 이미지
           Positioned.fill(
             child: Image.asset(
-              'assets/map.jpg',
-              fit: BoxFit.fill,
+              'assets/map.png',
+              fit: BoxFit.cover,
             ),
-            
           ),
-          // 도시별 날씨 정보 표시
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.5, top: MediaQuery.of(context).size.height * 0.25, city: '춘천', temperature: 7.2, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.35, top: MediaQuery.of(context).size.height * 0.35, city: '서울', temperature: 6.9, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.63, top: MediaQuery.of(context).size.height * 0.3, city: '강릉', temperature: 11.3, icon: Icons.cloud),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.55, top: MediaQuery.of(context).size.height * 0.37, city: '청주', temperature: 8.3, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.35, top: MediaQuery.of(context).size.height * 0.43, city: '수원', temperature: 7.7, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.5, top: MediaQuery.of(context).size.height * 0.48, city: '대전', temperature: 7.2, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.7, top: MediaQuery.of(context).size.height * 0.45, city: '안동', temperature: 9.3, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.35, top: MediaQuery.of(context).size.height * 0.53, city: '전주', temperature: 10.1, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.6, top: MediaQuery.of(context).size.height * 0.55, city: '대구', temperature: 11.2, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.35, top: MediaQuery.of(context).size.height * 0.6, city: '광주', temperature: 10.8, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.7, top: MediaQuery.of(context).size.height * 0.65, city: '부산', temperature: 12.6, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.79, top: MediaQuery.of(context).size.height * 0.57, city: '울산', temperature: 11.3, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.2, top: MediaQuery.of(context).size.height * 0.66, city: '목포', temperature: 12.4, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.2, top: MediaQuery.of(context).size.height * 0.75, city: '제주', temperature: 12.6, icon: Icons.cloud),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.5, top: MediaQuery.of(context).size.height * 0.66, city: '여수', temperature: 11.2, icon: Icons.wb_sunny),
-          _buildWeatherInfo(left: MediaQuery.of(context).size.width * 0.8, top: MediaQuery.of(context).size.height * 0.38, city: '독도', temperature: 12.2, icon: Icons.cloud),
+          // 날씨 위젯 추가
+          ..._buildWeatherWidgets(cities),
         ],
       ),
     );
   }
 
+  List<Widget> _buildWeatherWidgets(Map<String, Offset> cities) {
+    List<Widget> widgets = [];
+    weatherData.forEach((key, value) {
+      final cityName = value['regionName'];
+      final temperature = value['tmpr'];
+      final weatherText = value['wetrTxt'];
 
-  // 도시 날씨 정보를 표시하는 위젯 함수
+      if (cities.containsKey(cityName)) {
+        final offset = cities[cityName]!;
+
+        // 고정 크기에 따른 위치 계산
+        double left = width * offset.dx;
+        double top = height * offset.dy;
+
+        widgets.add(_buildWeatherInfo(
+          left: left,
+          top: top,
+          city: cityName,
+          temperature: temperature,
+          weather: weatherText,
+        ));
+      }
+    });
+
+    return widgets;
+  }
+
   Widget _buildWeatherInfo({
     required double left,
     required double top,
     required String city,
     required double temperature,
-    required IconData icon,
+    required String weather,
   }) {
     return Positioned(
       left: left,
       top: top,
       child: Column(
         children: [
-          Icon(icon, color: Colors.blueAccent, size: 20),
           Text(
-            '$city ${temperature.toStringAsFixed(1)}°',
-            style: TextStyle(color: Colors.black, fontSize: 12),
+            '$weather\n$city${temperature.toStringAsFixed(1)}°',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.black, fontSize: 12, shadows: [
+              Shadow(color: Colors.white, blurRadius: 2),
+            ],
+            fontWeight: FontWeight.bold),
           ),
         ],
       ),

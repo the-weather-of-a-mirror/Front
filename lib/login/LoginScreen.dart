@@ -32,9 +32,15 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        title: Text('로그인'),
+        title: Text(
+          '로그인',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.black,
+        centerTitle: true,
       ),
       body: Padding(
         padding: const EdgeInsets.only(right: 16, left: 16, bottom: 100),
@@ -70,6 +76,9 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             SizedBox(height: 16),
             ElevatedButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.black, // 배경색을 검정색으로 설정
+              ),
               onPressed: () async {
                 if (id == "") {
                   showDialog<String>(
@@ -145,7 +154,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   MyPageScreen();
                 });
               },
-              child: Text('로그인'),
+              child: Text(
+                '로그인',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
             ),
             TextButton(
               onPressed: () {
@@ -154,7 +166,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   MaterialPageRoute(builder: (context) => SignUpScreen()),
                 );
               },
-              child: Text('회원가입'),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.black, // 배경색을 검정색으로 설정
+              ),
+              child: Text(
+                '회원가입',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
             ),
           ],
         ),

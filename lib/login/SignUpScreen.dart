@@ -12,7 +12,7 @@ class SignUpScreen extends StatefulWidget {
 
 class _SignUpScreenState extends State<SignUpScreen> {
   // 이메일, 비밀번호, 이름 등 변수 선언
-  String id = '', password = '', name = '', email = '', city = '';
+  String id = '', password = '', name = '', email = '', city = 'SEOU';
   String _selectedCities = '서울';
 
   final TextEditingController _emailController = TextEditingController();
@@ -43,6 +43,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[300],
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         title: Text('회원가입'),
@@ -126,6 +127,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
             SizedBox(height: 16),
             // 회원가입 버튼
             ElevatedButton(
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.black, // 배경색을 검정색으로 설정
+              ),
               onPressed: () async {
                 // 회원가입 버튼 눌렀을 때의 로직 추가
                 var headers = {'Content-Type': 'application/json'};
@@ -162,7 +166,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         TextButton(
                           onPressed: () {
                             Navigator.pop(context);
-                            
                           },
                           child: const Text('확인'),
                         ),
@@ -194,7 +197,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   );
                 }
               },
-              child: Text('회원가입'),
+              child: Text(
+                '회원가입',
+                style: TextStyle(fontSize: 18, color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -240,7 +246,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       case '제주':
         return 'JEJU';
       default:
-        return ''; // 기본값 설정
+        return 'SEOU'; // 기본값 설정
     }
   }
 }

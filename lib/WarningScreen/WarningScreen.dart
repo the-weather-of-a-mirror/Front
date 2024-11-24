@@ -2,9 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:whether/WarningScreen/DisasterWarning.dart';
 import 'package:whether/WarningScreen/SaveTool.dart';
 import 'package:whether/WarningScreen/ShelterInfo.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
-class WarningScreen extends StatelessWidget {
+class WarningScreen extends StatefulWidget {
+  @override
+  _WarningScreen createState() => _WarningScreen();
+}
+
+String? token = "";
+
+class _WarningScreen extends State<WarningScreen> {
   final List<String> warningText = ["대피소 정보", "구호 물품", "재난 대피시\n주의사항"];
+
+  checkToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    token = prefs.getString('auth_token');
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    checkToken(); // 화면이 처음 로드될 때 토큰을 확인
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,10 +49,14 @@ class WarningScreen extends StatelessWidget {
                     onTap: () {
                       // 페이지 전환 로직
                       if (index == 0) {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ShelterInfo()),
-                        );
+                        if (token != null) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ShelterInfo()),
+                          );
+                        } else {
+                          _showLoginAlert(context); // 로그인 알림 창
+                        }
                       } else if (index == 1) {
                         Navigator.push(
                           context,
@@ -41,8 +65,7 @@ class WarningScreen extends StatelessWidget {
                       } else if (index == 2) {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                              builder: (context) => Disasterwarning()),
+                          MaterialPageRoute(builder: (context) => Disasterwarning()),
                         );
                       }
                     },
@@ -77,6 +100,26 @@ class WarningScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  // 로그인 알림창을 표시하는 함수
+  void _showLoginAlert(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          content: Text("로그인을 해주세요."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context); // 알림창 닫기
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

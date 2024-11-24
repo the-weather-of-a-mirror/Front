@@ -13,7 +13,7 @@ import 'WarningScreen/WarningScreen.dart';
 import 'MapScreen.dart';
 import 'HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(MaterialApp(home: WhetherApp()));
@@ -39,13 +39,16 @@ class _WhetherApp extends State<WhetherApp> {
   void checkToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
-    print(token);
+
+    
+      print(token);
 
     if (token != "") {
       viewList = [HomeScreen(), MapScreen(), WarningScreen(), MyPageScreen()];
       loginTab = "마이 페이지";
     }
     if (token == "" || token == null) {
+      
       viewList = [HomeScreen(), MapScreen(), WarningScreen(), LoginScreen()];
       loginTab = "로그인";
     }
