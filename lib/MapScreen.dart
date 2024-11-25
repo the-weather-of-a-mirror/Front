@@ -46,13 +46,18 @@ class _MapScreenState extends State<MapScreen> {
       backgroundColor: Color(0xFF00A2E8),
       appBar: AppBar(
         title: Text("날씨 지도",
-        style: TextStyle(color: Colors.white)),
+        style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,)),
         backgroundColor: Colors.black,
         centerTitle: true,
       ),
       body: Center(
         child: isLoading
-            ? CircularProgressIndicator()
+            ? Center(
+                  child: Text(
+                    '로그인을 해주세요.',
+                    style: TextStyle(fontSize: 18, color: Colors.black54),
+                  ),
+                )
             : CustomWeatherMap(
                 weatherData: weatherData,
                 width: 350, // 고정된 너비

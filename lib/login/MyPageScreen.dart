@@ -43,6 +43,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
           city = data['data']['area'];
           isLoading = false;
         });
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('area', data['data']['area']);
       } else {
         setState(() => isLoading = false);
         print('Error: ${response.statusCode}');
@@ -75,27 +77,38 @@ class _MyPageScreenState extends State<MyPageScreen> {
             )
           : Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Center( // Center로 전체 Column을 감싸서 중앙 정렬
+              child: Center(
+                // Center로 전체 Column을 감싸서 중앙 정렬
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center, // 세로로 중앙 정렬
                   crossAxisAlignment: CrossAxisAlignment.center, // 가로로 중앙 정렬
                   children: [
-                    Text('이름', style: TextStyle(fontSize: 18, color: Colors.black)),
+                    Text('이름',
+                        style: TextStyle(fontSize: 18, color: Colors.black)),
                     SizedBox(height: 5),
-                    Text(name, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text(name,
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold)),
                     SizedBox(height: 20),
-                    Text('이메일', style: TextStyle(fontSize: 18, color: Colors.black)),
+                    Text('이메일',
+                        style: TextStyle(fontSize: 18, color: Colors.black)),
                     SizedBox(height: 5),
-                    Text(email, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text(email,
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold)),
                     SizedBox(height: 20),
-                    Text('지역', style: TextStyle(fontSize: 18, color: Colors.black)),
+                    Text('지역',
+                        style: TextStyle(fontSize: 18, color: Colors.black)),
                     SizedBox(height: 5),
-                    Text(city, style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                    Text(city,
+                        style: TextStyle(
+                            fontSize: 22, fontWeight: FontWeight.bold)),
                     SizedBox(height: 40),
                     ElevatedButton(
                       onPressed: _logout,
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                         backgroundColor: Colors.black,
                       ),
                       child: Text(

@@ -43,11 +43,10 @@ class _WhetherApp extends State<WhetherApp> {
     
       print(token);
 
-    if (token != "") {
+    if (token != "" && token != null) {
       viewList = [HomeScreen(), MapScreen(), WarningScreen(), MyPageScreen()];
       loginTab = "마이 페이지";
-    }
-    if (token == "" || token == null) {
+    }else if (token == "" || token == null) {
       
       viewList = [HomeScreen(), MapScreen(), WarningScreen(), LoginScreen()];
       loginTab = "로그인";

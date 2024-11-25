@@ -13,12 +13,15 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> forecasts = [];
   bool isLoading = true;
   String city = '000';
+  String specialData = "";
+   Map<String, String>? specialAlert; // 특보 데이터를 저장할 상태 변수
 
   @override
   void initState() {
     super.initState();
     fetchData();
     getCity();
+    getSpecial();
   }
 
   String changeCode(String type) {
@@ -120,6 +123,56 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  Future<void> getSpecial() async {
+    var request = http.Request('GET',
+        Uri.parse('http://223.195.109.34:8080/mirror/weather/specialReport'));
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      specialData = await response.stream.bytesToString();
+      cutData();
+    } else {
+      print(response.reasonPhrase);
+    }
+  }
+
+  void cutData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? area = prefs.getString('area');
+
+    List<String> rows =
+        specialData.split("\n").where((line) => line.isNotEmpty).toList();
+
+    rows.removeWhere((line) => line.startsWith('#') || line.trim().isEmpty);
+
+    List<Map<String, String>> parsedData = [];
+
+    for (String row in rows) {
+      List<String> fields = row.split(",").map((e) => e.trim()).toList();
+
+      if (fields[1] == area || fields[3] == area || fields[9].isNotEmpty) {
+        parsedData.add({
+          "REG_UP_KO": fields[1],
+          "WRN": fields[6],
+          "LVL": fields[7],
+          "CMD": fields[8],
+          "ED_TM": fields[9],
+        });
+        var specialString = parsedData[0];
+
+         setState(() {
+          specialAlert = parsedData[0]; // 특보 데이터를 상태 변수에 저장
+        });
+
+        print("특보\n${specialString["WRN"]}${specialString["LVL"]}\n${specialString["ED_TM"]}");
+        
+      }
+      if(parsedData.isNotEmpty)
+        break;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Text(
           forecasts.isNotEmpty
               ? "${forecasts[0]['date']} $city 예보"
-              : "예보 데이터 없음", // 리스트가 비어있을 때 표시할 기본 텍스트
+              : "예보 데이터 없음",
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.black,
@@ -136,54 +189,102 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: isLoading
           ? Center(child: CircularProgressIndicator())
-          : forecasts.isEmpty
-              ? Center(
-                  child: Text(
-                    '데이터가 없습니다.',
-                    style: TextStyle(fontSize: 18, color: Colors.black54),
-                  ),
-                )
-              : ListView.builder(
-                  padding: EdgeInsets.all(16),
-                  itemCount: 1,
-                  itemBuilder: (context, index) {
-                    final filteredForecasts = forecasts.where((forecast) {
-                      return forecast['type'] != "PTY" &&
-                          forecast['type'] != "UUU" &&
-                          forecast['type'] != "VVV";
-                    }).toList();
-
-                    return Card(
-                      elevation: 3,
-                      margin: EdgeInsets.only(bottom: 16),
+          : Column(
+              children: [
+                if (specialAlert != null) ...[
+                  Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Card(
+                      color: Colors.red[100],
+                      elevation: 4,
                       child: Padding(
-                        padding: EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(16.0),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: filteredForecasts.map((forecast) {
-                            String displayValue;
-                            if (forecast['type'] == 'VEC') {
-                              displayValue =
-                                  convertWindDirection(forecast['obsrValue']);
-                            } else {
-                              displayValue = forecast['obsrValue'];
-                            }
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "특보 정보",
+                              style: TextStyle(
+                                  
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red[800]),
+                                  
+                            ),
 
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(vertical: 4.0),
-                              child: Text(
-                                "${changeCode(forecast['type'])} : $displayValue",
-                                style: TextStyle(
-                                    fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                            );
-                          }).toList(),
+                            SizedBox(height: 8),
+                            Text(
+                              "경고: ${specialAlert?["WRN"] ?? "N/A"}",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            Text(
+                              "레벨: ${specialAlert?["LVL"] ?? "N/A"}",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                            Text(
+                              "종료 시간: ${specialAlert?["ED_TM"] ?? "N/A"}",
+                              style: TextStyle(fontSize: 16),
+                            ),
+                          ],
                         ),
                       ),
-                    );
-                  },
+                    ),
+                  ),
+                ],
+                Expanded(
+                  child: forecasts.isEmpty
+                      ? Center(
+                          child: Text(
+                            '데이터가 없습니다.',
+                            style: TextStyle(fontSize: 18, color: Colors.black54),
+                          ),
+                        )
+                      : ListView.builder(
+                          padding: EdgeInsets.all(16),
+                          itemCount: 1,
+                          itemBuilder: (context, index) {
+                            final filteredForecasts =
+                                forecasts.where((forecast) {
+                              return forecast['type'] != "PTY" &&
+                                  forecast['type'] != "UUU" &&
+                                  forecast['type'] != "VVV";
+                            }).toList();
+
+                            return Card(
+                              elevation: 3,
+                              margin: EdgeInsets.only(bottom: 16),
+                              child: Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: filteredForecasts.map((forecast) {
+                                    String displayValue;
+                                    if (forecast['type'] == 'VEC') {
+                                      displayValue = convertWindDirection(
+                                          forecast['obsrValue']);
+                                    } else {
+                                      displayValue = forecast['obsrValue'];
+                                    }
+
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 4.0),
+                                      child: Text(
+                                        "${changeCode(forecast['type'])} : $displayValue",
+                                        style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
+                                      ),
+                                    );
+                                  }).toList(),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
                 ),
+              ],
+            ),
     );
   }
 }
