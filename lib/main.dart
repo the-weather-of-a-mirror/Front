@@ -10,10 +10,13 @@ import 'package:whether/login/MyPageScreen.dart';
 import 'QRScanner.dart';
 import 'WhatScreen.dart';
 import 'WarningScreen/WarningScreen.dart';
-import 'MapScreen.dart';
 import 'HomeScreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'map/DustMap.dart';
+import 'map/MapScreen.dart';
+import 'package:geolocator/geolocator.dart';
+
 
 void main() {
   runApp(MaterialApp(home: WhetherApp()));
@@ -25,6 +28,21 @@ List<Widget> viewList = [
   WarningScreen(),
   LoginScreen()
 ];
+
+void checkGPS()async{
+  bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('permissions are denied');
+      }
+    }
+}
 
 String loginTab = "로그인";
 
@@ -39,94 +57,89 @@ class _WhetherApp extends State<WhetherApp> {
   void checkToken() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
+    int? mapState = prefs.getInt('mapState');
 
-    
-      print(token);
-
-    if (token != "" && token != null) {
+    print(token);
+setState(() {
+    if ((token != "" && token != null) && mapState == 0) {
       viewList = [HomeScreen(), MapScreen(), WarningScreen(), MyPageScreen()];
       loginTab = "마이 페이지";
-    }else if (token == "" || token == null) {
-      
+    } else if ((token == "" || token == null) && mapState == 0) {
       viewList = [HomeScreen(), MapScreen(), WarningScreen(), LoginScreen()];
       loginTab = "로그인";
     }
+    else if ((token != "" && token != null) && mapState == 1) {
+      viewList = [HomeScreen(), DustMap(), WarningScreen(), MyPageScreen()];
+      loginTab = "마이 페이지";
+    } else if ((token == "" || token == null) && mapState == 1) {
+      viewList = [HomeScreen(), DustMap(), WarningScreen(), LoginScreen()];
+      loginTab = "로그인";
+    }
 
+    });
+  }
+
+ 
+
+  void checkQR() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = prefs.getString('auth_token');
+
+    if (token != null) {
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Qrscanner()));
+    } else if (token == "" || token == null) {
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          content: Text("로그인을 해주세요."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+      );
+    }
+    print(token);
     setState(() {});
   }
 
-
-  void checkQR() async{
+  void checkMsg() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
 
     if (token != null) {
-      Navigator.push(context,
-      MaterialPageRoute(builder: (context) => Qrscanner()));
-     
-    }
-    else if (token == "" || token == null) {
-    showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      content: Text("로그인을 해주세요."),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            
-                          },
-                          child: const Text('확인'),
-                        ),
-                      ],
-                    ),
-                  );
-
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => Message()));
+    } else if (token == "" || token == null) {
+      showDialog<String>(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          content: Text("로그인을 해주세요."),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+      );
     }
     print(token);
-    setState(() {
-      
-    });
-
-  }
-
-  void checkMsg() async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString('auth_token');
-
-    if (token != null) {
-      Navigator.push(context,
-      MaterialPageRoute(builder: (context) => Message()));
-     
-    }
-    else if (token == "" || token == null) {
-    showDialog<String>(
-                    context: context,
-                    builder: (BuildContext context) => AlertDialog(
-                      content: Text("로그인을 해주세요."),
-                      actions: <Widget>[
-                        TextButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                            
-                          },
-                          child: const Text('확인'),
-                        ),
-                      ],
-                    ),
-                  );
-
-    }
-    print(token);
-    setState(() {
-      
-    });
-
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     checkToken();
+    checkGPS();
+  
 
     return MaterialApp(
         home: DefaultTabController(
@@ -162,8 +175,10 @@ class _WhetherApp extends State<WhetherApp> {
                   borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(40.0),
                       bottomRight: Radius.circular(40.0))),
-              child: Text('메뉴',
-              style: TextStyle(color:Colors.white),),
+              child: Text(
+                '메뉴',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
             ListTile(
               leading: Icon(
@@ -183,7 +198,6 @@ class _WhetherApp extends State<WhetherApp> {
               title: const Text('거울 등록'),
               onTap: () {
                 checkQR();
-              
               },
             ),
           ],

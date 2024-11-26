@@ -44,6 +44,8 @@ class _MyPageScreenState extends State<MyPageScreen> {
           isLoading = false;
         });
         SharedPreferences prefs = await SharedPreferences.getInstance();
+        if(data['data']['area'] == "세종시") data['data']['area'] = "세종특별자치시";
+        else if (data['data']['area'] == "전라북도") data['data']['area'] ="전북자치도";
         prefs.setString('area', data['data']['area']);
       } else {
         setState(() => isLoading = false);

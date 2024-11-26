@@ -26,17 +26,39 @@ class _MapScreenState extends State<MapScreen> {
       'Authorization': 'Bearer $token',
     };
 
-    final url = Uri.parse('http://223.195.109.34:8080/mirror/weather/weatherMapService');
+    final url = Uri.parse(
+        'http://223.195.109.34:8080/mirror/weather/weatherMapService');
     final response = await http.get(url, headers: headers);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       setState(() {
         weatherData = data['data']['results']['choiceResult']['nationFcast'];
+        print(weatherData);
         isLoading = false;
       });
     } else {
       print('Failed to fetch weather data: ${response.reasonPhrase}');
+    }
+  }
+
+  void changeData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt('mapState',1);
+    print(prefs.getInt('mapState'));
+  }
+
+
+  Future<void> getDust() async {
+    var request = http.Request(
+        'GET', Uri.parse('http://223.195.109.34:8080/mirror/weather/nation/dust'));
+
+    http.StreamedResponse response = await request.send();
+
+    if (response.statusCode == 200) {
+      print(await response.stream.bytesToString());
+    } else {
+      print(response.reasonPhrase);
     }
   }
 
@@ -46,23 +68,31 @@ class _MapScreenState extends State<MapScreen> {
       backgroundColor: Color(0xFF00A2E8),
       appBar: AppBar(
         title: Text("날씨 지도",
-        style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,)),
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            )),
         backgroundColor: Colors.black,
         centerTitle: true,
       ),
       body: Center(
         child: isLoading
             ? Center(
-                  child: Text(
-                    '로그인을 해주세요.',
-                    style: TextStyle(fontSize: 18, color: Colors.black54),
-                  ),
-                )
+                child: Text(
+                  '로딩중',
+                  style: TextStyle(fontSize: 18, color: Colors.black54),
+                ),
+              )
             : CustomWeatherMap(
                 weatherData: weatherData,
                 width: 350, // 고정된 너비
                 height: 500, // 고정된 높이
               ),
+      ),
+       floatingActionButton: FloatingActionButton(
+        onPressed: changeData,
+        backgroundColor: Colors.black,
+        child: Icon(Icons.sync, color: Colors.white),
       ),
     );
   }
@@ -162,10 +192,13 @@ class CustomWeatherMap extends StatelessWidget {
           Text(
             '$weather\n$city${temperature.toStringAsFixed(1)}°',
             textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black, fontSize: 12, shadows: [
-              Shadow(color: Colors.white, blurRadius: 2),
-            ],
-            fontWeight: FontWeight.bold),
+            style: TextStyle(
+                color: Colors.black,
+                fontSize: 12,
+                shadows: [
+                  Shadow(color: Colors.white, blurRadius: 2),
+                ],
+                fontWeight: FontWeight.bold),
           ),
         ],
       ),

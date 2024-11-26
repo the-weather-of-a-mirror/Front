@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:whether/Key.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:geolocator/geolocator.dart';
 
 class ShelterInfo extends StatefulWidget {
   @override
@@ -13,24 +14,42 @@ class ShelterInfo extends StatefulWidget {
 class _ShelterInfoState extends State<ShelterInfo> {
   List<Map<String, dynamic>> shelters = []; // 대피소 데이터 리스트
   bool isLoading = true; // 로딩 상태 플래그
+  var latitude;
+  var longitude;
 
   @override
   void initState() {
     super.initState();
+    getGPS();
     getShelter(); // 초기 데이터 로드
+  }
+
+  void getGPS() async {
+    
+
+    Position position = await Geolocator.getCurrentPosition();
+    setState(() {
+      latitude = position.latitude.toString();
+      longitude = position.longitude.toString();
+    });
+
+    print(latitude);
+    print(longitude);
   }
 
   Future<void> getShelter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     String? token = prefs.getString('auth_token');
 
-
     try {
       var headers = {
         'Authorization': 'Bearer $token',
-        'X-API-Key': ApiKeys.shelterApiKey};
-        var request = http.Request('GET',
-        Uri.parse('http://223.195.109.34:8080/mirror/weather/shelter'));
+        'X-API-Key': ApiKeys.shelterApiKey
+      };
+
+      var request = http.Request(
+          'GET', Uri.parse('223.195.109.34:8080/mirror/weather/point/shelter'));
+      request.body = json.encode({"xPoint": 37.2108834, "yPoint": 126.9711797});
 
       request.headers.addAll(headers);
 
@@ -66,7 +85,7 @@ class _ShelterInfoState extends State<ShelterInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[300], 
+      backgroundColor: Colors.grey[300],
       appBar: AppBar(
         title: Text('대피소 정보'),
       ),
